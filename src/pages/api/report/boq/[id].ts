@@ -2,8 +2,8 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 import puppeteer, { type PDFOptions } from "puppeteer";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const boq_id = req.query.id?.toString();
-  const user_id = req.query.user_id?.toString();
+  const boq_id = req.query.id?.toString().replace(/[^a-zA-Z0-9_-]/g, "");
+  const user_id = req.query.user_id?.toString().replace(/[^a-zA-Z0-9_-]/g, '');
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -26,7 +26,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   await page.setViewport({ width: 1000, height: 0 });
 
   const url = new URL(`/pdf/boq/${boq_id}`, process.env.NEXTAUTH_URL);
-  url.searchParams.append("user_id", user_id ?? "");
+  if (user_id) {
+    url.searchParams.append("user_id", user_id);
+  }
 
   await page.goto(url.toString(), {
     waitUntil: "networkidle2",

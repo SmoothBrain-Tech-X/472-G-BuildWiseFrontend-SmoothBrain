@@ -3,7 +3,11 @@ import puppeteer, { type PDFOptions } from "puppeteer";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const summary_id = req.query.id?.toString();
-
+  const isValidId = /^[a-zA-Z0-9_-]+$/.test(summary_id ?? "");
+  if (!isValidId) {
+    res.status(400).send("Invalid summary ID");
+    return;
+  }
   const browser = await puppeteer.launch({
     headless: true,
     executablePath:

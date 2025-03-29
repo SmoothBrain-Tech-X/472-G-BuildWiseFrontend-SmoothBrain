@@ -1,10 +1,20 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 import puppeteer, { type PDFOptions } from "puppeteer";
 
+const validateInput = (input: string | undefined): string | null => {
+  const regex = /^[a-zA-Z0-9_-]+$/;
+  return input && regex.test(input) ? input : null;
+};
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const invoice_id = req.query.id?.toString();
-  const project_id = req.query.project_id?.toString();
-  const user_id = req.query.user_id?.toString();
+  const invoice_id = validateInput(req.query.id?.toString());
+  const project_id = validateInput(req.query.project_id?.toString());
+  const user_id = validateInput(req.query.user_id?.toString());
+
+  if (!invoice_id || !project_id || !user_id) {
+    res.status(400).json({ error: "Invalid input" });
+    return;
+  }
 
   const browser = await puppeteer.launch({
     headless: true,

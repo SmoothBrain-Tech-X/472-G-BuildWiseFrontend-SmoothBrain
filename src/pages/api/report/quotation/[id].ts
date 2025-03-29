@@ -3,6 +3,10 @@ import puppeteer, { type PDFOptions } from "puppeteer";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const quotation_id = req.query.id?.toString();
+  if (!/^[a-zA-Z0-9]+$/.test(quotation_id ?? "")) {
+    res.status(400).send("Invalid quotation ID");
+    return;
+  }
   const user_id = req.query.user_id?.toString();
 
   const browser = await puppeteer.launch({
