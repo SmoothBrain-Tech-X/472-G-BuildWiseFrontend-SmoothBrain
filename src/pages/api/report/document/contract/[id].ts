@@ -3,6 +3,11 @@ import puppeteer, { type PDFOptions } from "puppeteer";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const project_id = req.query.id?.toString();
+  const validProjectIdPattern = /^[a-zA-Z0-9_-]+$/;
+  if (!project_id || !validProjectIdPattern.test(project_id)) {
+    res.status(400).json({ error: "Invalid project ID" });
+    return;
+  }
   const user_id = req.query.user_id?.toString();
 
   const browser = await puppeteer.launch({
@@ -25,9 +30,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   await page.setViewport({ width: 1000, height: 0 });
 
-  await page.goto(`${process.env.NEXTAUTH_URL}/pdf/document/contract/${project_id}?user_id=${user_id}`, {
-    waitUntil: "networkidle2",
-  });
+  await page.goto(
+    `${process.env.NEXTAUTH_URL}/pdf/document/contract/${project_id}?user_id=${user_id}`,
+    {
+      waitUntil: "networkidle2",
+    },
+  );
 
   const pdfOption: PDFOptions = {
     printBackground: true,
